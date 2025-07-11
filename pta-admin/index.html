@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PTA Payment Status</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .payment-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .payment-table th, .payment-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .payment-table th {
+            background-color: var(--primary-color);
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        
+        .payment-table tr.completed {
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-paid {
+            background-color: var(--success-color);
+        }
+        
+        .status-unpaid {
+            background-color: var(--danger-color);
+        }
+        
+        .summary-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .summary-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .summary-card h3 {
+            margin-top: 0;
+            color: var(--secondary-color);
+            font-size: 16px;
+        }
+        
+        .summary-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #666;
+        }
+        
+        .error {
+            color: var(--danger-color);
+            text-align: center;
+            padding: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PTA Payment Status</h1>
+        
+        <div class="summary-panel">
+            <div class="summary-card">
+                <h3>Total Members</h3>
+                <div class="summary-value" id="total-members">0</div>
+            </div>
+            <div class="summary-card">
+                <h3>Completed Payments</h3>
+                <div class="summary-value" id="completed-payments">0</div>
+            </div>
+            <div class="summary-card">
+                <h3>PTA Homeroom (120)</h3>
+                <div class="summary-value" id="homeroom-paid">0</div>
+            </div>
+            <div class="summary-card">
+                <h3>ID (120)</h3>
+                <div class="summary-value" id="id-paid">0</div>
+            </div>
+            <div class="summary-card">
+                <h3>General PTA (200)</h3>
+                <div class="summary-value" id="general-paid">0</div>
+            </div>
+        </div>
+        
+        <input type="text" id="search-input" class="search-box" placeholder="Search by name...">
+        
+        <div id="loading" class="loading">Loading payment data...</div>
+        <div id="error" class="error" style="display: none;"></div>
+        
+        <table class="payment-table">
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Name</th>
+                    <th>PTA Homeroom (120)</th>
+                    <th>ID (120)</th>
+                    <th>General PTA (200)</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="payment-table-body">
+                <!-- Table content will be generated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+    
+    <script>
+        // DOM elements
+        const tableBody = document.getElementById('payment-table-body');
+        const searchInput = document.getElementById('search-input');
+        const loadingEl = document.getElementById('loading');
+        const errorEl = document.getElementById('error');
+        
+        // Summary elements
+        const totalMembersEl = document.getElementById('total-members');
+        const completedPaymentsEl = document.getElementById('completed-payments');
+        const homeroomPaidEl = document.getElementById('homeroom-paid');
+        const idPaidEl = document.getElementById('id-paid');
+        const generalPaidEl = document.getElementById('general-paid');
+        
+        // Load JSON data automatically when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('file.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!Array.isArray(data)) {
+                        throw new Error('Loaded data is not an array');
+                    }
+                    renderTable(data);
+                    setupSearch(data);
+                    loadingEl.style.display = 'none';
+                })
+                .catch(error => {
+                    loadingEl.style.display = 'none';
+                    errorEl.textContent = `Error loading data: ${error.message}`;
+                    errorEl.style.display = 'block';
+                    console.error('Error:', error);
+                });
+        });
+        
+        // Render the table with payment data
+        function renderTable(data) {
+            tableBody.innerHTML = '';
+            
+            data.forEach((member, index) => {
+                const isCompleted = member.ptaHomeroom && member.idPayment && member.generalPta;
+                const rowClass = isCompleted ? 'completed' : '';
+                
+                const row = document.createElement('tr');
+                if (rowClass) row.className = rowClass;
+                
+                row.innerHTML = `
+                    <td>${member.id || index + 1}</td>
+                    <td>${member.name}</td>
+                    <td>${member.ptaHomeroom ? '✓ Paid' : '✗ Unpaid'}</td>
+                    <td>${member.idPayment ? '✓ Paid' : '✗ Unpaid'}</td>
+                    <td>${member.generalPta ? '✓ Paid' : '✗ Unpaid'}</td>
+                    <td>${member.date || '-'}</td>
+                    <td>
+                        <span class="status-indicator ${isCompleted ? 'status-paid' : 'status-unpaid'}"></span>
+                        ${isCompleted ? 'Completed' : 'Pending'}
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            updateSummary(data);
+        }
+        
+        // Update summary statistics
+        function updateSummary(data) {
+            totalMembersEl.textContent = data.length;
+            
+            const completedCount = data.filter(member => 
+                member.ptaHomeroom && member.idPayment && member.generalPta
+            ).length;
+            
+            const homeroomPaid = data.filter(member => member.ptaHomeroom).length;
+            const idPaid = data.filter(member => member.idPayment).length;
+            const generalPaid = data.filter(member => member.generalPta).length;
+            
+            completedPaymentsEl.textContent = `${completedCount} (${data.length > 0 ? Math.round((completedCount / data.length) * 100) : 0}%)`;
+            homeroomPaidEl.textContent = `${homeroomPaid} (${data.length > 0 ? Math.round((homeroomPaid / data.length) * 100) : 0}%)`;
+            idPaidEl.textContent = `${idPaid} (${data.length > 0 ? Math.round((idPaid / data.length) * 100) : 0}%)`;
+            generalPaidEl.textContent = `${generalPaid} (${data.length > 0 ? Math.round((generalPaid / data.length) * 100) : 0}%)`;
+        }
+        
+        // Setup search functionality
+        function setupSearch(data) {
+            searchInput.addEventListener('input', () => {
+                const searchTerm = searchInput.value.toLowerCase();
+                if (searchTerm === '') {
+                    renderTable(data);
+                } else {
+                    const filteredData = data.filter(member => 
+                        member.name.toLowerCase().includes(searchTerm)
+                    );
+                    renderTable(filteredData);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

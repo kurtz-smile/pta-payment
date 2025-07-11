@@ -1,0 +1,719 @@
+<!-- This code made by Nelnymous Spacialy Nelwyn Escodo and the others and also with the Autopilot is the big help -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PTA Payment Tracker - Admin Panel</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --accent-color: #4fc3f7;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--secondary-color);
+            margin-bottom: 30px;
+        }
+        
+        .control-panel {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: var(--dark-color);
+        }
+        
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        
+        .search-box {
+            flex-grow: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .payment-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .payment-table th, .payment-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .payment-table th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+        }
+        
+        .payment-table tr:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .payment-table tr.completed {
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+        
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .name-input {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-paid {
+            background-color: var(--success-color);
+        }
+        
+        .status-unpaid {
+            background-color: var(--danger-color);
+        }
+        
+        .summary-panel {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .summary-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+        }
+        
+        .summary-card h3 {
+            margin-top: 0;
+            color: var(--secondary-color);
+        }
+        
+        .summary-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            color: var(--secondary-color);
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #aaa;
+        }
+        
+        .close-btn:hover {
+            color: var(--dark-color);
+        }
+        
+        .modal-body textarea {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            resize: vertical;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .payment-table {
+                font-size: 14px;
+            }
+            
+            .payment-table th, .payment-table td {
+                padding: 8px 10px;
+            }
+            
+            .control-panel {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PTA Payment Tracker - Admin Panel</h1>
+        
+        <div class="summary-panel">
+            <div class="summary-card">
+                <h3>Total Members</h3>
+                <div class="summary-value" id="total-members">0</div>
+            </div>
+            <div class="summary-card">
+                <h3>Completed Payments</h3>
+                <div class="summary-value" id="completed-payments">0</div>
+            </div>
+            <div class="summary-card">
+                <h3>PTA Homeroom (120)</h3>
+                <div class="summary-value" id="homeroom-paid">0</div>
+            </div>
+            <div class="summary-card">
+                <h3>ID (120)</h3>
+                <div class="summary-value" id="id-paid">0</div>
+            </div>
+            <div class="summary-card">
+                <h3>General PTA (200)</h3>
+                <div class="summary-value" id="general-paid">0</div>
+            </div>
+        </div>
+        
+        <div class="control-panel">
+            <input type="text" id="search-input" class="search-box" placeholder="Search by name...">
+            <button id="add-member" class="btn btn-primary">Add Member</button>
+            <button id="export-btn" class="btn btn-success">Export Data</button>
+            <button id="import-btn" class="btn btn-warning">Import Data</button>
+            <button id="reset-btn" class="btn btn-danger">Reset All</button>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="payment-table">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Name</th>
+                        <th>PTA Homeroom (120)</th>
+                        <th>ID (120)</th>
+                        <th>General PTA (200)</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="payment-table-body">                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div id="export-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Export Data</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Copy the JSON data below to save it:</p>
+                <textarea id="export-data" readonly></textarea>
+            </div>
+            <div class="modal-footer">
+                <button id="copy-export" class="btn btn-primary">Copy to Clipboard</button>
+                <button id="close-export" class="btn btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="import-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Import Data</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Paste your JSON data below:</p>
+                <textarea id="import-data" placeholder='[{"name":"John Doe","ptaHomeroom":true,"idPayment":false,"generalPta":false,"date":""},...]'></textarea>
+            </div>
+            <div class="modal-footer">
+                <button id="confirm-import" class="btn btn-success">Import Data</button>
+                <button id="close-import" class="btn btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="confirm-title">Confirm Action</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-message">Are you sure you want to perform this action?</p>
+            </div>
+            <div class="modal-footer">
+                <button id="confirm-yes" class="btn btn-danger">Yes</button>
+                <button id="confirm-no" class="btn btn-secondary">No</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let paymentData = [];
+        
+        const tableBody = document.getElementById('payment-table-body');
+        const searchInput = document.getElementById('search-input');
+        const addMemberBtn = document.getElementById('add-member');
+        const exportBtn = document.getElementById('export-btn');
+        const importBtn = document.getElementById('import-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        
+        const totalMembersEl = document.getElementById('total-members');
+        const completedPaymentsEl = document.getElementById('completed-payments');
+        const homeroomPaidEl = document.getElementById('homeroom-paid');
+        const idPaidEl = document.getElementById('id-paid');
+        const generalPaidEl = document.getElementById('general-paid');
+        
+        const exportModal = document.getElementById('export-modal');
+        const importModal = document.getElementById('import-modal');
+        const confirmModal = document.getElementById('confirm-modal');
+        const exportDataEl = document.getElementById('export-data');
+        const importDataEl = document.getElementById('import-data');
+        const copyExportBtn = document.getElementById('copy-export');
+        const closeExportBtn = document.getElementById('close-export');
+        const confirmImportBtn = document.getElementById('confirm-import');
+        const closeImportBtn = document.getElementById('close-import');
+        const confirmYesBtn = document.getElementById('confirm-yes');
+        const confirmNoBtn = document.getElementById('confirm-no');
+        const confirmTitleEl = document.getElementById('confirm-title');
+        const confirmMessageEl = document.getElementById('confirm-message');
+        
+        function init() {
+            const savedData = localStorage.getItem('ptaPaymentData');
+            if (savedData) {
+                paymentData = JSON.parse(savedData);
+            } else {
+                createSampleData();
+            }
+            
+            renderTable();
+            updateSummary();
+            setupEventListeners();
+        }
+        
+        function createSampleData() {
+            paymentData = [];
+            const names = [
+                
+            ];
+            
+            const currentDate = new Date().toISOString().split('T')[0];
+            
+            names.forEach((name, index) => {
+                paymentData.push({
+                    id: index + 1,
+                    name: name,
+                    ptaHomeroom: Math.random() > 0.7,
+                    idPayment: Math.random() > 0.7,
+                    generalPta: Math.random() > 0.7,
+                    date: Math.random() > 0.7 ? currentDate : ""
+                });
+            });
+            
+            saveData();
+        }
+        
+        function renderTable(filteredData = null) {
+            const dataToRender = filteredData || paymentData;
+            tableBody.innerHTML = '';
+            
+            dataToRender.forEach((member, index) => {
+                const isCompleted = member.ptaHomeroom && member.idPayment && member.generalPta;
+                const rowClass = isCompleted ? 'completed' : '';
+                
+                const row = document.createElement('tr');
+                if (rowClass) row.className = rowClass;
+                
+                row.innerHTML = `
+                    <td>${member.id}</td>
+                    <td><input type="text" class="name-input" value="${member.name}" data-id="${member.id}"></td>
+                    <td><input type="checkbox" class="checkbox" data-type="ptaHomeroom" data-id="${member.id}" ${member.ptaHomeroom ? 'checked' : ''}></td>
+                    <td><input type="checkbox" class="checkbox" data-type="idPayment" data-id="${member.id}" ${member.idPayment ? 'checked' : ''}></td>
+                    <td><input type="checkbox" class="checkbox" data-type="generalPta" data-id="${member.id}" ${member.generalPta ? 'checked' : ''}></td>
+                    <td><input type="date" value="${member.date || ''}" data-id="${member.id}" class="date-input"></td>
+                    <td>
+                        <span class="status-indicator ${isCompleted ? 'status-paid' : 'status-unpaid'}"></span>
+                        ${isCompleted ? 'Completed' : 'Pending'}
+                    </td>
+                    <td>
+                        <button class="btn btn-danger btn-sm delete-btn" data-id="${member.id}">Delete</button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            addDynamicEventListeners();
+        }
+        
+        function updateSummary() {
+            totalMembersEl.textContent = paymentData.length;
+            
+            const completedCount = paymentData.filter(member => 
+                member.ptaHomeroom && member.idPayment && member.generalPta
+            ).length;
+            
+            const homeroomPaid = paymentData.filter(member => member.ptaHomeroom).length;
+            const idPaid = paymentData.filter(member => member.idPayment).length;
+            const generalPaid = paymentData.filter(member => member.generalPta).length;
+            
+            completedPaymentsEl.textContent = `${completedCount} (${Math.round((completedCount / paymentData.length) * 100)}%)`;
+            homeroomPaidEl.textContent = `${homeroomPaid} (${Math.round((homeroomPaid / paymentData.length) * 100)}%)`;
+            idPaidEl.textContent = `${idPaid} (${Math.round((idPaid / paymentData.length) * 100)}%)`;
+            generalPaidEl.textContent = `${generalPaid} (${Math.round((generalPaid / paymentData.length) * 100)}%)`;
+        }
+        
+        function saveData() {
+            localStorage.setItem('ptaPaymentData', JSON.stringify(paymentData));
+            updateSummary();
+        }
+        
+        function setupEventListeners() {
+            searchInput.addEventListener('input', () => {
+                const searchTerm = searchInput.value.toLowerCase();
+                if (searchTerm === '') {
+                    renderTable();
+                } else {
+                    const filteredData = paymentData.filter(member => 
+                        member.name.toLowerCase().includes(searchTerm)
+                    );
+                    renderTable(filteredData);
+                }
+            });
+            
+            addMemberBtn.addEventListener('click', () => {
+                const newId = paymentData.length > 0 ? Math.max(...paymentData.map(m => m.id)) + 1 : 1;
+                const newMember = {
+                    id: newId,
+                    name: `New Member ${newId}`,
+                    ptaHomeroom: false,
+                    idPayment: false,
+                    generalPta: false,
+                    date: ""
+                };
+                
+                paymentData.push(newMember);
+                saveData();
+                renderTable();
+                
+                setTimeout(() => {
+                    const newRow = document.querySelector(`input[data-id="${newId}"]`).closest('tr');
+                    newRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    
+                    const nameInput = newRow.querySelector('.name-input');
+                    nameInput.focus();
+                    nameInput.select();
+                }, 100);
+            });
+            
+            exportBtn.addEventListener('click', () => {
+                exportDataEl.value = JSON.stringify(paymentData, null, 2);
+                exportModal.style.display = 'block';
+            });
+            
+            importBtn.addEventListener('click', () => {
+                importDataEl.value = '';
+                importModal.style.display = 'block';
+            });
+            
+            resetBtn.addEventListener('click', () => {
+                showConfirmation(
+                    'Reset All Data',
+                    'Are you sure you want to reset all data? This cannot be undone.',
+                    () => {
+                        createSampleData();
+                        renderTable();
+                    }
+                );
+            });
+            
+            closeExportBtn.addEventListener('click', () => {
+                exportModal.style.display = 'none';
+            });
+            
+            closeImportBtn.addEventListener('click', () => {
+                importModal.style.display = 'none';
+            });
+            
+            confirmNoBtn.addEventListener('click', () => {
+                confirmModal.style.display = 'none';
+            });
+            
+            copyExportBtn.addEventListener('click', () => {
+                exportDataEl.select();
+                document.execCommand('copy');
+                alert('Data copied to clipboard!');
+            });
+            
+            confirmImportBtn.addEventListener('click', () => {
+                try {
+                    const newData = JSON.parse(importDataEl.value);
+                    if (!Array.isArray(newData)) {
+                        throw new Error('Data must be an array');
+                    }
+                    
+                    showConfirmation(
+                        'Import Data',
+                        'Are you sure you want to import this data? Current data will be overwritten.',
+                        () => {
+                            paymentData = newData;
+                            // Ensure all entries have proper IDs
+                            paymentData.forEach((member, index) => {
+                                if (!member.id) {
+                                    member.id = index + 1;
+                                }
+                            });
+                            saveData();
+                            renderTable();
+                            importModal.style.display = 'none';
+                        }
+                    );
+                } catch (error) {
+                    alert('Invalid JSON data: ' + error.message);
+                }
+            });
+            
+            window.addEventListener('click', (event) => {
+                if (event.target === exportModal) {
+                    exportModal.style.display = 'none';
+                }
+                if (event.target === importModal) {
+                    importModal.style.display = 'none';
+                }
+                if (event.target === confirmModal) {
+                    confirmModal.style.display = 'none';
+                }
+            });
+        }
+        
+        function addDynamicEventListeners() {
+            document.querySelectorAll('.name-input').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const id = parseInt(e.target.dataset.id);
+                    const member = paymentData.find(m => m.id === id);
+                    if (member) {
+                        member.name = e.target.value;
+                        saveData();
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    const id = parseInt(e.target.dataset.id);
+                    const type = e.target.dataset.type;
+                    const member = paymentData.find(m => m.id === id);
+                    if (member) {
+                        member[type] = e.target.checked;
+                        
+                        if (member.ptaHomeroom && member.idPayment && member.generalPta && !member.date) {
+                            member.date = new Date().toISOString().split('T')[0];
+                            
+                            const dateInput = document.querySelector(`.date-input[data-id="${id}"]`);
+                            if (dateInput) {
+                                dateInput.value = member.date;
+                            }
+                        }
+                        
+                        saveData();
+                        
+                        const row = e.target.closest('tr');
+                        if (member.ptaHomeroom && member.idPayment && member.generalPta) {
+                            row.classList.add('completed');
+                            
+                            const statusCell = row.querySelector('td:nth-child(7)');
+                            if (statusCell) {
+                                statusCell.innerHTML = `
+                                    <span class="status-indicator status-paid"></span>
+                                    Completed
+                                `;
+                            }
+                        } else {
+                            row.classList.remove('completed');
+                            
+                            const statusCell = row.querySelector('td:nth-child(7)');
+                            if (statusCell) {
+                                statusCell.innerHTML = `
+                                    <span class="status-indicator status-unpaid"></span>
+                                    Pending
+                                `;
+                            }
+                        }
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.date-input').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const id = parseInt(e.target.dataset.id);
+                    const member = paymentData.find(m => m.id === id);
+                    if (member) {
+                        member.date = e.target.value;
+                        saveData();
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const id = parseInt(e.target.dataset.id);
+                    showConfirmation(
+                        'Delete Member',
+                        `Are you sure you want to delete this member? This cannot be undone.`,
+                        () => {
+                            paymentData = paymentData.filter(m => m.id !== id);
+                            saveData();
+                            renderTable();
+                        }
+                    );
+                });
+            });
+        }
+        
+        function showConfirmation(title, message, callback) {
+            confirmTitleEl.textContent = title;
+            confirmMessageEl.textContent = message;
+            confirmModal.style.display = 'block';
+            
+            const newYesBtn = confirmYesBtn.cloneNode(true);
+            confirmYesBtn.parentNode.replaceChild(newYesBtn, confirmYesBtn);
+            
+            newYesBtn.addEventListener('click', () => {
+                confirmModal.style.display = 'none';
+                callback();
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

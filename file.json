@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "name": "Nelwyn Escodo",
+    "ptaHomeroom": true,
+    "idPayment": true,
+    "generalPta": true,
+    "date": "2025-07-09"
+  },
+  {
+    "id": 2,
+    "name": "Alenren Alunan",
+    "ptaHomeroom": true,
+    "idPayment": true,
+    "generalPta": false,
+    "date": "2025-07-09"
+  },
+  {
+    "id": 3,
+    "name": "Reyjune banais",
+    "ptaHomeroom": true,
+    "idPayment": false,
+    "generalPta": false,
+    "date": ""
+  },
+  {
+    "id": 4,
+    "name": "Reynch Mark Laguita",
+    "ptaHomeroom": false,
+    "idPayment": true,
+    "generalPta": true,
+    "date": ""
+  }
+]
